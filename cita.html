@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Método Neri</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#0A0A0A; --black-2:#111111; --black-3:#181818; --black-4:#1E1E1E;
+  --gold:#C6A86B; --gold-light:#E2C98A; --gold-dim:rgba(198,168,107,0.10);
+  --gold-border:rgba(198,168,107,0.22); --gold-strong:rgba(198,168,107,0.45);
+  --w100:rgba(255,255,255,1); --w60:rgba(255,255,255,0.60);
+  --w35:rgba(255,255,255,0.35); --w18:rgba(255,255,255,0.18);
+  --w8:rgba(255,255,255,0.08); --w4:rgba(255,255,255,0.04);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Montserrat',sans-serif;background:var(--black);color:var(--w100);min-height:100vh;display:flex;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:400px;min-width:400px;background:var(--black-2);border-right:1px solid var(--gold-border);display:flex;flex-direction:column;overflow-y:auto;max-height:100vh;}
+.sidebar-top{padding:32px 28px 0;}
+.brand{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--gold);}
+.brand-sub{font-size:9px;font-weight:500;letter-spacing:3px;color:var(--w35);text-transform:uppercase;margin-top:3px;}
+.brand-line{width:36px;height:1px;background:var(--gold-strong);margin-top:16px;}
+
+/* Tabs */
+.tabs{display:flex;flex-direction:column;gap:2px;padding:20px 28px 0;}
+.tab-btn{display:flex;align-items:center;gap:12px;padding:11px 14px;background:transparent;border:1px solid transparent;border-radius:3px;cursor:pointer;text-align:left;transition:all 0.18s;color:var(--w35);}
+.tab-btn:hover{background:var(--gold-dim);color:var(--w60);}
+.tab-btn.active{background:var(--gold-dim);border-color:var(--gold-border);color:var(--w100);}
+.tab-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);line-height:1;min-width:20px;}
+.tab-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;line-height:1.3;}
+.tab-sub{font-size:9px;font-weight:400;color:var(--w18);margin-top:2px;letter-spacing:0.5px;text-transform:none;}
+.tab-btn.active .tab-sub{color:var(--w35);}
+
+.sidebar-divider{height:1px;background:var(--w8);margin:16px 28px;}
+
+/* Asesor compartido */
+.asesor-section{padding:0 28px 20px;}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--gold-dim);}
+.field{margin-bottom:11px;}
+.field label{display:block;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--w35);margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;background:var(--black-3);border:1px solid var(--w8);color:var(--w100);font-family:'Montserrat',sans-serif;font-size:12px;padding:9px 12px;border-radius:3px;outline:none;transition:border-color 0.2s;-webkit-appearance:none;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold-strong);}
+.field input::placeholder,.field textarea::placeholder{color:var(--w18);}
+.field select option{background:var(--black-3);}
+.field textarea{resize:vertical;min-height:56px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* Form panels */
+.form-scroll{flex:1;overflow-y:auto;padding:0 28px 24px;}
+.form-panel{display:none;}
+.form-panel.active{display:block;}
+
+/* Checklist */
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px;}
+.check-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--black-3);border:1px solid var(--w8);border-radius:3px;cursor:pointer;transition:all 0.18s;}
+.check-item:hover{border-color:var(--gold-border);}
+.check-item.on{border-color:var(--gold-strong);background:var(--gold-dim);}
+.check-item input[type=checkbox]{width:13px;min-width:13px;height:13px;accent-color:var(--gold);margin-top:1px;cursor:pointer;}
+.check-item span{font-size:10px;font-weight:500;color:var(--w60);line-height:1.3;}
+.check-item.on span{color:var(--gold-light);}
+.check-full{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--black-3);border:1px solid var(--w8);border-radius:3px;margin-bottom:6px;cursor:pointer;transition:all 0.18s;}
+.check-full:hover{border-color:var(--gold-border);}
+.check-full.on{border-color:var(--gold-strong);background:var(--gold-dim);}
+.check-full input[type=checkbox]{width:13px;min-width:13px;height:13px;accent-color:var(--gold);margin-top:2px;cursor:pointer;}
+.check-full-text .t{font-size:11px;font-weight:600;color:var(--w60);line-height:1.3;}
+.check-full-text .s{font-size:9px;font-weight:300;color:var(--w35);margin-top:2px;}
+.check-full.on .check-full-text .t{color:var(--gold-light);}
+
+/* Ajuste estratégico radio */
+.radio-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--black-3);border:1px solid var(--w8);border-radius:3px;margin-bottom:6px;cursor:pointer;transition:all 0.18s;}
+.radio-item:hover{border-color:var(--gold-border);}
+.radio-item.on{border-color:var(--gold-strong);background:var(--gold-dim);}
+.radio-item input[type=radio]{width:13px;min-width:13px;height:13px;accent-color:var(--gold);margin-top:2px;cursor:pointer;}
+.radio-item .t{font-size:11px;font-weight:600;color:var(--w60);line-height:1.3;}
+.radio-item .s{font-size:9px;font-weight:300;color:var(--w35);margin-top:2px;}
+.radio-item.on .t{color:var(--gold-light);}
+
+/* Métrica inputs */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* Botones */
+.btn-gen{width:100%;padding:13px;background:var(--gold);color:var(--black);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;border:none;border-radius:3px;cursor:pointer;transition:all 0.18s;margin-top:16px;}
+.btn-gen:hover{background:var(--gold-light);}
+.btn-print{width:100%;padding:11px;background:transparent;color:var(--gold);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;border:1px solid var(--gold-strong);border-radius:3px;cursor:pointer;transition:all 0.18s;margin-top:8px;display:none;}
+.btn-print:hover{background:var(--gold-dim);}
+.btn-wa{width:100%;padding:11px;background:transparent;color:#25D366;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(37,211,102,0.35);border-radius:3px;cursor:pointer;transition:all 0.18s;margin-top:8px;display:none;}
+.btn-wa:hover{background:rgba(37,211,102,0.07);}
+
+/* ── PREVIEW ── */
+.preview-area{flex:1;background:#141414;overflow-y:auto;max-height:100vh;padding:32px 40px;display:flex;flex-direction:column;align-items:center;}
+.preview-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--w18);margin-bottom:24px;align-self:flex-start;}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;opacity:0.35;}
+.empty-big{font-family:'Bebas Neue',sans-serif;font-size:72px;letter-spacing:4px;color:var(--gold);}
+.empty-sm{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--w35);}
+
+/* ── TARJETA BASE ── */
+.card{width:700px;background:var(--black);border-top:1px solid var(--gold-border);border-bottom:1px solid var(--gold-border);font-family:'Montserrat',sans-serif;}
+.card.hidden{display:none;}
+
+.c-header{background:var(--black-2);border-bottom:1px solid var(--gold-border);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;}
+.c-asesor-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;color:var(--w100);}
+.c-asesor-meta{font-size:9px;color:var(--w35);margin-top:3px;letter-spacing:0.5px;}
+.c-logo{display:flex;align-items:center;justify-content:flex-end;}
+
+.c-hero{padding:28px 32px 24px;border-bottom:1px solid var(--w4);}
+.c-hero-tag{font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.c-hero-h{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:2px;color:var(--w100);line-height:1;}
+.c-hero-sub{font-family:'Cormorant Garamond','Georgia',serif;font-style:italic;font-size:14px;color:var(--w35);margin-top:6px;line-height:1.5;}
+
+.c-body{padding:0 32px;}
+.c-spacer{height:20px;}
+
+.sec-bar{display:flex;align-items:center;margin-bottom:0;}
+.sec-bar-lbl{background:var(--gold);color:var(--black);font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;padding:6px 14px;flex-shrink:0;}
+.sec-bar-line{flex:1;height:1px;background:var(--gold-border);}
+
+.data-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--w8);border-top:none;}
+.data-cell{padding:12px 18px;border-right:1px solid var(--w4);border-bottom:1px solid var(--w4);}
+.data-cell:nth-child(even){border-right:none;}
+.data-cell.full{grid-column:1/-1;}
+.d-lbl{font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--w18);margin-bottom:3px;}
+.d-val{font-size:12px;font-weight:500;color:var(--w100);}
+.d-val.gold{color:var(--gold);font-size:13px;font-weight:600;}
+.d-val.big{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);letter-spacing:1px;line-height:1;}
+
+.check-card-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--w8);border-top:none;}
+.check-card-row{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--w4);border-right:1px solid var(--w4);}
+.check-card-row:nth-child(even){border-right:none;}
+.check-num{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--gold);flex-shrink:0;margin-top:1px;}
+.check-t{font-size:10px;font-weight:600;color:var(--w100);line-height:1.3;}
+.check-s{font-size:9px;font-weight:300;color:var(--w35);margin-top:1px;line-height:1.3;}
+
+.prod-grid{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid var(--w8);border-top:none;}
+.prod-item{padding:12px 16px;border-right:1px solid var(--w4);}
+.prod-item:last-child{border-right:none;}
+.prod-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);line-height:1;}
+.prod-t{font-size:10px;font-weight:600;color:var(--w100);margin-top:3px;line-height:1.3;}
+.prod-s{font-size:9px;font-weight:300;color:var(--w35);margin-top:1px;line-height:1.3;}
+
+.ajuste-grid{display:grid;grid-template-columns:1fr;border:1px solid var(--w8);border-top:none;}
+.ajuste-row{display:flex;align-items:flex-start;gap:12px;padding:12px 18px;border-bottom:1px solid var(--w4);}
+.ajuste-row:last-child{border-bottom:none;}
+.ajuste-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);flex-shrink:0;}
+.ajuste-dot{width:14px;height:14px;border:1.5px solid var(--gold-border);border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;}
+.ajuste-dot.on{background:var(--gold);border-color:var(--gold);}
+.ajuste-t{font-size:11px;font-weight:600;color:var(--w100);line-height:1.3;}
+.ajuste-s{font-size:9px;font-weight:300;color:var(--w35);margin-top:2px;line-height:1.3;}
+
+.docs-list{border:1px solid var(--w8);border-top:none;}
+.doc-row{display:flex;align-items:flex-start;gap:14px;padding:11px 18px;border-bottom:1px solid var(--w4);}
+.doc-row:last-child{border-bottom:none;}
+.doc-num{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--gold);flex-shrink:0;margin-top:1px;}
+.doc-t{font-size:11px;font-weight:600;color:var(--w100);line-height:1.3;}
+.doc-s{font-size:9px;font-weight:300;color:var(--w35);margin-top:1px;}
+
+.analysis-block{border:1px solid var(--w8);border-top:none;}
+.analysis-cell{padding:14px 18px;border-bottom:1px solid var(--w4);}
+.analysis-cell:last-child{border-bottom:none;}
+.analysis-lbl{font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--w18);margin-bottom:6px;}
+.analysis-txt{font-size:11px;font-weight:400;color:var(--w60);line-height:1.6;white-space:pre-wrap;}
+
+.c-footer{margin:20px 32px 0;border-top:1px solid var(--gold-border);padding:14px 0 22px;display:flex;align-items:center;justify-content:space-between;}
+.c-footer-msg{font-size:9px;font-style:italic;color:var(--w35);}
+.c-footer-tel{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:1px;}
+
+/* WhatsApp preview */
+.wa-block{margin-top:20px;width:700px;background:var(--black-2);border:1px solid var(--gold-border);border-radius:3px;padding:20px 24px;}
+.wa-lbl{font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#25D366;margin-bottom:10px;}
+.wa-msg{background:var(--black-3);border:1px solid var(--w8);border-radius:3px;padding:14px 16px;font-size:12px;color:var(--w60);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+.wa-copy{margin-top:8px;padding:8px 16px;background:transparent;color:#25D366;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(37,211,102,0.3);border-radius:3px;cursor:pointer;transition:all 0.18s;}
+.wa-copy:hover{background:rgba(37,211,102,0.07);}
+
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="brand">MÉTODO NERI</div>
+    <div class="brand-sub">Panel de Documentos</div>
+    <div class="brand-line"></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('produccion',this)">
+      <span class="tab-num">01</span>
+      <div><div class="tab-label">Producción</div><div class="tab-sub">Cita de grabación</div></div>
+    </button>
+    <button class="tab-btn" onclick="switchTab('reporte',this)">
+      <span class="tab-num">02</span>
+      <div><div class="tab-label">Reporte Semanal</div><div class="tab-sub">Métricas de publicidad</div></div>
+    </button>
+    <button class="tab-btn" onclick="switchTab('notaria',this)">
+      <span class="tab-num">03</span>
+      <div><div class="tab-label">Notaría</div><div class="tab-sub">Confirmación de cita</div></div>
+    </button>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- ASESOR COMPARTIDO -->
+  <div class="asesor-section">
+    <div class="sec-label">Asesor</div>
+    <div class="field">
+      <label>Nombre</label>
+      <input type="text" id="g_asesor" placeholder="Enrique Martínez Neri" value="Enrique Martínez Neri">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Teléfono</label>
+        <input type="text" id="g_tel" placeholder="777 985 5687" value="777 985 5687">
+      </div>
+      <div class="field">
+        <label>Inmobiliaria</label>
+        <input type="text" id="g_inmo" placeholder="Century 21 Haus" value="Century 21 Haus">
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- FORM SCROLL AREA -->
+  <div class="form-scroll">
+
+    <!-- ── TAB 1: PRODUCCIÓN ── -->
+    <div class="form-panel active" id="panel-produccion">
+      <div class="sec-label">Sesión</div>
+      <div class="field"><label>Propietario</label><input type="text" id="p_prop" placeholder="Nombre del propietario"></div>
+      <div class="field"><label>Dirección</label><input type="text" id="p_dir" placeholder="Colonia, ciudad"></div>
+      <div class="field-row">
+        <div class="field"><label>Fecha</label><input type="text" id="p_fecha" placeholder="Lunes 2 de junio"></div>
+        <div class="field"><label>Hora</label><input type="text" id="p_hora" placeholder="10:00 am"></div>
+      </div>
+      <div class="field">
+        <label>Duración</label>
+        <select id="p_dur">
+          <option value="">Seleccionar...</option>
+          <option>1 hora aprox.</option><option>1.5 horas aprox.</option>
+          <option>2 horas aprox.</option><option>2.5 horas aprox.</option><option>3 horas aprox.</option>
+        </select>
+      </div>
+
+      <div class="sec-label" style="margin-top:16px;">Preparación</div>
+      <div class="check-grid" id="p_check_form"></div>
+
+      <div class="sec-label" style="margin-top:16px;">Producción</div>
+      <div id="p_prod_form"></div>
+
+      <button class="btn-gen" onclick="genProduccion()">↳ Generar confirmación</button>
+      <button class="btn-print" id="bp_print" onclick="imprimirTarjeta('card-produccion')">⬇ Guardar / Imprimir</button>
+      <button class="btn-wa" id="bp_wa" onclick="copiarWA('wa-produccion')">● Copiar mensaje WhatsApp</button>
+    </div>
+
+    <!-- ── TAB 2: REPORTE ── -->
+    <div class="form-panel" id="panel-reporte">
+      <div class="sec-label">Identificación</div>
+      <div class="field"><label>Propietario / Vendedor</label><input type="text" id="r_prop" placeholder="Nombre del propietario"></div>
+      <div class="field"><label>Propiedad / Dirección</label><input type="text" id="r_dir" placeholder="Lomas de Ahuatlán / dirección"></div>
+      <div class="field"><label>Período del reporte</label><input type="text" id="r_semana" placeholder="1 al 15 de mayo, 2025"></div>
+
+      <div class="sec-label" style="margin-top:16px;">Métricas</div>
+      <div class="metrics-grid">
+        <div class="field"><label>Alcance</label><input type="text" id="r_alcance" placeholder="Personas que vieron"></div>
+        <div class="field"><label>Reproducciones</label><input type="text" id="r_repro" placeholder="del video"></div>
+        <div class="field"><label>Clics</label><input type="text" id="r_clics" placeholder="en el anuncio"></div>
+        <div class="field"><label>Leads totales</label><input type="text" id="r_leads" placeholder="mensajes recibidos"></div>
+        <div class="field"><label>Leads calificados</label><input type="text" id="r_lcal" placeholder="pasaron el filtro"></div>
+        <div class="field"><label>Visitas</label><input type="text" id="r_visitas" placeholder="a la propiedad"></div>
+        <div class="field"><label>Presupuesto ($)</label><input type="text" id="r_presupuesto" placeholder="invertido en pauta"></div>
+        <div class="field"><label>Costo/lead ($)</label><input type="text" id="r_cpl" placeholder="costo por lead cal."></div>
+      </div>
+
+      <div class="sec-label" style="margin-top:16px;">Análisis</div>
+      <div class="field"><label>Comentarios frecuentes</label><textarea id="r_comentarios" placeholder="Qué preguntan más los interesados..."></textarea></div>
+      <div class="field"><label>Observaciones del asesor</label><textarea id="r_obs" placeholder="Contexto del mercado en este período..."></textarea></div>
+
+      <div class="sec-label" style="margin-top:16px;">Ajuste estratégico</div>
+      <label class="radio-item" id="ri0" onclick="selectRadio(0)">
+        <input type="radio" name="ajuste" value="0"> <div><div class="t">Mantener la estrategia actual</div><div class="s">Los resultados van en la dirección correcta</div></div>
+      </label>
+      <label class="radio-item" id="ri1" onclick="selectRadio(1)">
+        <input type="radio" name="ajuste" value="1"> <div><div class="t">Ajustar precio de la propiedad</div><div class="s">Basado en feedback del mercado</div></div>
+      </label>
+      <label class="radio-item" id="ri2" onclick="selectRadio(2)">
+        <input type="radio" name="ajuste" value="2"> <div><div class="t">Cambiar segmentación del anuncio</div><div class="s">Ampliar o afinar el perfil del comprador</div></div>
+      </label>
+
+      <button class="btn-gen" onclick="genReporte()">↳ Generar reporte</button>
+      <button class="btn-print" id="br_print" onclick="imprimirTarjeta('card-reporte')">⬇ Guardar / Imprimir</button>
+      <button class="btn-wa" id="br_wa" onclick="copiarWA('wa-reporte')">● Copiar mensaje WhatsApp</button>
+    </div>
+
+    <!-- ── TAB 3: NOTARÍA ── -->
+    <div class="form-panel" id="panel-notaria">
+      <div class="sec-label">Cliente</div>
+      <div class="field"><label>Nombre del cliente</label><input type="text" id="n_cliente" placeholder="Nombre completo"></div>
+      <div class="field-row">
+        <div class="field"><label>Fecha</label><input type="text" id="n_fecha" placeholder="Lunes 2 de junio"></div>
+        <div class="field"><label>Hora</label><input type="text" id="n_hora" placeholder="11:00 am"></div>
+      </div>
+
+      <div class="sec-label" style="margin-top:16px;">Notaría</div>
+      <div class="field"><label>Nombre de la notaría</label><input type="text" id="n_notaria" placeholder="Notaría Pública No. 5"></div>
+      <div class="field"><label>Notario que recibe</label><input type="text" id="n_notario" placeholder="Lic. Juan Pérez"></div>
+      <div class="field"><label>Dirección</label><input type="text" id="n_dir" placeholder="Calle, número, colonia"></div>
+      <div class="field"><label>Referencia / Cómo llegar</label><input type="text" id="n_ref" placeholder="Frente al parque, piso 3..."></div>
+
+      <div class="sec-label" style="margin-top:16px;">Documentos requeridos</div>
+      <div id="n_docs_form"></div>
+
+      <button class="btn-gen" onclick="genNotaria()">↳ Generar confirmación</button>
+      <button class="btn-print" id="bn_print" onclick="imprimirTarjeta('card-notaria')">⬇ Guardar / Imprimir</button>
+      <button class="btn-wa" id="bn_wa" onclick="copiarWA('wa-notaria')">● Copiar mensaje WhatsApp</button>
+    </div>
+
+  </div><!-- /form-scroll -->
+</div><!-- /sidebar -->
+
+<!-- PREVIEW -->
+<div class="preview-area">
+  <div class="preview-label">Vista previa · Tarjeta exportable</div>
+
+  <div class="empty-state" id="empty-state">
+    <div class="empty-big">NERI</div>
+    <div class="empty-sm">Selecciona un documento · Llena los datos</div>
+  </div>
+
+  <!-- TARJETA 1: PRODUCCIÓN -->
+  <div class="card hidden" id="card-produccion">
+    <div class="c-header">
+      <div><div class="c-asesor-name" id="cp_nombre"></div><div class="c-asesor-meta" id="cp_meta"></div></div>
+      <div class="c-logo" id="cp_logo"></div>
+    </div>
+    <div class="c-hero">
+      <div class="c-hero-tag">● Confirmación de cita · Producción inmobiliaria</div>
+      <div class="c-hero-h">LLEGÓ LA HORA.</div>
+      <div class="c-hero-sub">Mañana damos a conocer a la estrella de este proceso — su propiedad.</div>
+    </div>
+    <div class="c-body">
+      <div class="c-spacer"></div>
+      <div class="sec-bar"><div class="sec-bar-lbl">■ Datos de la sesión</div><div class="sec-bar-line"></div></div>
+      <div class="data-grid">
+        <div class="data-cell"><div class="d-lbl">Propietario</div><div class="d-val" id="cp_prop"></div></div>
+        <div class="data-cell"><div class="d-lbl">Dirección</div><div class="d-val" id="cp_dir"></div></div>
+        <div class="data-cell"><div class="d-lbl">Fecha</div><div class="d-val gold" id="cp_fecha"></div></div>
+        <div class="data-cell"><div class="d-lbl">Hora de llegada</div><div class="d-val gold" id="cp_hora"></div></div>
+        <div class="data-cell full"><div class="d-lbl">Duración estimada</div><div class="d-val" id="cp_dur"></div></div>
+      </div>
+      <div class="c-spacer"></div>
+      <div class="sec-bar"><div class="sec-bar-lbl">■ Preparación de la propiedad</div><div class="sec-bar-line"></div></div>
+      <div class="check-card-grid" id="cp_checklist"></div>
+      <div class="c-spacer"></div>
+      <div class="sec-bar"><div class="sec-bar-lbl">■ Lo que vamos a producir</div><div class="sec-bar-line"></div></div>
+      <div class="prod-grid" id="cp_prod"></div>
+    </div>
+    <div class="c-footer">
+      <div class="c-footer-msg">¿Necesitas cambiar algo? Avísame con anticipación.</div>
+      <div class="c-footer-tel" id="cp_tel"></div>
+    </div>
+  </div>
+  <div class="wa-block hidden" id="wa-produccion">
+    <div class="wa-lbl">● Mensaje WhatsApp</div>
+    <div class="wa-msg" id="wa-produccion-txt"></div>
+    <button class="wa-copy" onclick="copiarWA('wa-produccion')">Copiar</button>
+  </div>
+
+  <!-- TARJETA 2: REPORTE -->
+  <div class="card hidden" id="card-reporte">
+    <div class="c-header">
+      <div><div class="c-asesor-name" id="cr_nombre"></div><div class="c-asesor-meta" id="cr_meta"></div></div>
+      <div class="c-logo" id="cr_logo"></div>
+    </div>
+    <div class="c-hero">
+      <div class="c-hero-tag">● Reporte de resultados · Publicidad</div>
+      <div class="c-hero-h" id="cr_semana_h">PERÍODO DEL 1 AL 15.</div>
+      <div class="c-hero-sub">Usted sabe exactamente qué pasó con su propiedad. Sin filtros — así trabaja el Método Neri.</div>
+    </div>
+    <div class="c-body">
+      <div class="c-spacer"></div>
+      <div class="sec-bar"><div class="sec-bar-lbl">■ Identificación</div><div class="sec-bar-line"></div></div>
+      <div class="data-grid">
+        <div class="data-cell"><div class="d-lbl">Propietario</div><div class="d-val" id="cr_prop"></div></div>
+        <div class="data-cell"><div class="d-lbl">Propiedad</div><div class="d-val" id="cr_dir"></div></div>
+        <div class="data-cell full"><div class="d-lbl">Período</div><div class="d-val gold" id="cr_semana"></div></div>
+      </div>
+      <div class="c-spacer"></div>
+      <div class="sec-bar"><div class="sec-bar-lbl">■ Métricas del período</div><div class="sec-bar-line"></div></div>
+      <div class="data-grid">
+        <div class="data-cell"><div class="d-lbl">Alcance</div><div class="d-val big" id="cr_alcance"></div></div>
+        <div class="data-cell"><div class="d-lbl">Reproducciones</div><div class="d-val big" id="cr_repro"></div></div>
+        <div class="data-cell"><div class="d-lbl">Clics</div><div class="d-val big" id="cr_clics"></div></div>
+        <div class="data-cell"><div class="d-lbl">Leads totales</div><div class="d-val big" id="cr_leads"></div></div>
+        <div class="data-cell"><div class="d-lbl">Leads calificados</div><div class="d-val big" id="cr_lcal"></div></div>
+        <div class="data-cell"><div class="d-lbl">Visitas</div><div class="d-val big" id="cr_visitas"></div></div>
+        <div class="data-cell"><div class="d-lbl">Presupuesto invertido</div><div class="d-val" id="cr_presupuesto"></div></div>
+        <div class="data-cell"><div class="d-lbl">Costo por lead calificado</div><div class="d-val" id="cr_cpl"></div></div>
+      </div>
+      <div class="c-spacer"></div>
+      <div class="sec-bar"><div class="sec-bar-lbl">■ Análisis del período</div><div class="sec-bar-line"></div></div>
+      <div class="analysis-block">
+        <div class="analysis-cell"><div class="analysis-lbl">Comentarios frecuentes de interesados</div><div class="analysis-txt" id="cr_comentarios"></div></div>
+        <div class="analysis-cell"><div class="analysis-lbl">Observaciones del asesor</div><div class="analysis-txt" id="cr_obs"></div></div>
+      </div>
+      <div class="c-spacer"></div>
+      <div class="sec-bar"><div class="sec-bar-lbl">■ Decisión estratégica · Siguiente período</div><div class="sec-bar-line"></div></div>
+      <div class="ajuste-grid" id="cr_ajuste"></div>
+    </div>
+    <div class="c-footer">
+      <div class="c-footer-msg">Método Neri · Sistema de Control de Calidad Inmobiliaria</div>
+      <div class="c-footer-tel" id="cr_tel"></div>
+    </div>
+  </div>
+  <div class="wa-block hidden" id="wa-reporte">
+    <div class="wa-lbl">● Mensaje WhatsApp</div>
+    <div class="wa-msg" id="wa-reporte-txt"></div>
+    <button class="wa-copy" onclick="copiarWA('wa-reporte')">Copiar</button>
+  </div>
+
+  <!-- TARJETA 3: NOTARÍA -->
+  <div class="card hidden" id="card-notaria">
+    <div class="c-header">
+      <div><div class="c-asesor-name" id="cn_nombre"></div><div class="c-asesor-meta" id="cn_meta"></div></div>
+      <div class="c-logo" id="cn_logo"></div>
+    </div>
+    <div class="c-hero">
+      <div class="c-hero-tag">● Confirmación · Cita en notaría</div>
+      <div class="c-hero-h">TODO ESTÁ LISTO.</div>
+      <div class="c-hero-sub">Aquí tiene todo lo que necesita saber para llegar con claridad y sin contratiempos.</div>
+    </div>
+    <div class="c-body">
+      <div class="c-spacer"></div>
+      <div class="sec-bar"><div class="sec-bar-lbl">■ Datos de la cita</div><div class="sec-bar-line"></div></div>
+      <div class="data-grid">
+        <div class="data-cell full"><div class="d-lbl">Cliente</div><div class="d-val" id="cn_cliente"></div></div>
+        <div class="data-cell"><div class="d-lbl">Fecha</div><div class="d-val gold" id="cn_fecha"></div></div>
+        <div class="data-cell"><div class="d-lbl">Hora</div><div class="d-val gold" id="cn_hora"></div></div>
+      </div>
+      <div class="c-spacer"></div>
+      <div class="sec-bar"><div class="sec-bar-lbl">■ Datos de la notaría</div><div class="sec-bar-line"></div></div>
+      <div class="data-grid">
+        <div class="data-cell"><div class="d-lbl">Notaría</div><div class="d-val" id="cn_notaria"></div></div>
+        <div class="data-cell"><div class="d-lbl">Notario</div><div class="d-val" id="cn_notario"></div></div>
+        <div class="data-cell"><div class="d-lbl">Dirección</div><div class="d-val" id="cn_dir"></div></div>
+        <div class="data-cell"><div class="d-lbl">Referencia</div><div class="d-val" id="cn_ref"></div></div>
+      </div>
+      <div class="c-spacer"></div>
+      <div class="sec-bar"><div class="sec-bar-lbl">■ Documentos que debe llevar</div><div class="sec-bar-line"></div></div>
+      <div class="docs-list" id="cn_docs"></div>
+    </div>
+    <div class="c-footer">
+      <div class="c-footer-msg">Cualquier ajuste o duda antes de la cita, avíseme con anticipación.</div>
+      <div class="c-footer-tel" id="cn_tel"></div>
+    </div>
+  </div>
+  <div class="wa-block hidden" id="wa-notaria">
+    <div class="wa-lbl">● Mensaje WhatsApp</div>
+    <div class="wa-msg" id="wa-notaria-txt"></div>
+    <button class="wa-copy" onclick="copiarWA('wa-notaria')">Copiar</button>
+  </div>
+
+</div><!-- /preview-area -->
+
+<script>
+/* ── DATA ── */
+const CHECKLIST=[
+  {n:'01',t:'Limpieza general completa',s:'Pisos, vidrios, baños y cocina impecables'},
+  {n:'02',t:'Despersonalizar espacios',s:'Retirar fotos familiares y objetos personales'},
+  {n:'03',t:'Iluminación al máximo',s:'Todas las luces encendidas, cortinas abiertas'},
+  {n:'04',t:'Jardín o patio ordenado',s:'Cortar pasto, recoger objetos sueltos'},
+  {n:'05',t:'Estacionamiento despejado',s:'Sin autos al frente para tomas exteriores'},
+  {n:'06',t:'Mascotas resguardadas',s:'Para que no interfieran durante la grabación'},
+  {n:'07',t:'Aromas agradables',s:'Ventilar bien los espacios antes de la sesión'},
+  {n:'08',t:'Detalles decorativos',s:'Flores frescas, toallas dobladas, cojines acomodados'}
+];
+const PRODUCCION=[
+  {n:'01',t:'Video principal de la propiedad',s:'Recorrido completo con música y branding Método Neri'},
+  {n:'02',t:'Video podcast del asesor',s:'Presentación con contexto y puntos clave'},
+  {n:'03',t:'Videos filtro para publicidad',s:'Cortos optimizados para redes y pauta pagada'}
+];
+const AJUSTES=[
+  {t:'Mantener la estrategia actual',s:'Los resultados van en la dirección correcta'},
+  {t:'Ajustar precio de la propiedad',s:'Basado en la respuesta del mercado en este período'},
+  {t:'Cambiar segmentación del anuncio',s:'Ampliar o afinar el perfil del comprador objetivo'}
+];
+const DOCS=[
+  {n:'01',t:'Identificación oficial vigente',s:'INE / Pasaporte — original y copia'},
+  {n:'02',t:'CURP',s:'Clave Única de Registro de Población'},
+  {n:'03',t:'Comprobante de domicilio',s:'No mayor a 3 meses — original y copia'},
+  {n:'04',t:'RFC con homoclave',s:'Constancia del SAT'},
+  {n:'05',t:'Estado de cuenta bancario',s:'Últimos 3 meses para acreditar fondos'},
+  {n:'06',t:'Acta de matrimonio',s:'Si aplica — original y copia'},
+  {n:'07',t:'Poder notarial',s:'Si actúa en representación de alguien'},
+  {n:'08',t:'Cheque certificado / transferencia',s:'Según instrucciones de la notaría'}
+];
+
+/* ── INIT FORM ELEMENTS ── */
+// Producción checklist
+const pchk=document.getElementById('p_check_form');
+CHECKLIST.forEach((item,i)=>{
+  const l=document.createElement('label');
+  l.className='check-item on';l.setAttribute('for','pc'+i);
+  l.innerHTML=`<input type="checkbox" id="pc${i}" checked onchange="toggleCI(this)"><span>${item.n} ${item.t}</span>`;
+  pchk.appendChild(l);
+});
+
+// Producción prod
+const pprod=document.getElementById('p_prod_form');
+PRODUCCION.forEach((item,i)=>{
+  const l=document.createElement('label');
+  l.className='check-full on';l.setAttribute('for','pp'+i);
+  l.innerHTML=`<input type="checkbox" id="pp${i}" checked onchange="toggleCI(this)"><div class="check-full-text"><div class="t">${item.n} ${item.t}</div><div class="s">${item.s}</div></div>`;
+  pprod.appendChild(l);
+});
+
+// Notaría docs
+const ndocs=document.getElementById('n_docs_form');
+DOCS.forEach((item,i)=>{
+  const l=document.createElement('label');
+  l.className='check-full on';l.setAttribute('for','nd'+i);
+  l.innerHTML=`<input type="checkbox" id="nd${i}" checked onchange="toggleCI(this)"><div class="check-full-text"><div class="t">${item.n} ${item.t}</div><div class="s">${item.s}</div></div>`;
+  ndocs.appendChild(l);
+});
+
+function toggleCI(cb){
+  const p=cb.closest('.check-item,.check-full');
+  cb.checked?p.classList.add('on'):p.classList.remove('on');
+}
+
+/* ── TABS ── */
+let activeTab='produccion';
+function switchTab(id,btn){
+  activeTab=id;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.form-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+}
+
+/* ── LOGO HELPER ── */
+function logoSVG(inmo,wrap){
+  const u=inmo.toUpperCase().trim();
+  if(u.includes('CENTURY 21')||u.includes('CENTURY21')||u.includes('C21')){
+    const sub=inmo.replace(/century\s?21/gi,'').trim().toUpperCase()||'HAUS';
+    wrap.innerHTML=`<svg viewBox="0 0 120 52" fill="none" xmlns="http://www.w3.org/2000/svg" height="48">
+      <circle cx="20" cy="20" r="17" stroke="#C6A86B" stroke-width="1.4" fill="none"/>
+      <text x="20" y="25" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="14" fill="#C6A86B" letter-spacing="1">C21</text>
+      <text x="46" y="18" font-family="'Bebas Neue',sans-serif" font-size="12" fill="#C6A86B" letter-spacing="2">CENTURY 21</text>
+      <text x="46" y="32" font-family="'Montserrat',sans-serif" font-size="9" fill="rgba(255,255,255,0.30)" letter-spacing="2">${sub}</text>
+    </svg>`;
+  } else if(inmo.trim()){
+    wrap.innerHTML=`<div style="text-align:right"><div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:#C6A86B">${inmo.toUpperCase()}</div><div style="font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.2);margin-top:2px">INMOBILIARIA</div></div>`;
+  } else {
+    wrap.innerHTML=`<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" height="40">
+      <path d="M24 6L4 22h6v20h12V30h4v12h12V22h6L24 6z" stroke="#C6A86B" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
+    </svg>`;
+  }
+}
+
+function asesorData(){
+  return {
+    nombre: document.getElementById('g_asesor').value||'Enrique Martínez Neri',
+    tel: document.getElementById('g_tel').value||'777 985 5687',
+    inmo: document.getElementById('g_inmo').value||'Century 21 Haus'
+  };
+}
+
+function showCard(id){
+  document.getElementById('empty-state').classList.add('hidden');
+  ['card-produccion','card-reporte','card-notaria'].forEach(c=>{
+    document.getElementById(c).classList.add('hidden');
+  });
+  ['wa-produccion','wa-reporte','wa-notaria'].forEach(w=>{
+    document.getElementById(w).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function showWA(id,msg){
+  document.getElementById(id+'-txt').textContent=msg;
+  document.getElementById(id).classList.remove('hidden');
+}
+
+/* ── GEN PRODUCCIÓN ── */
+function genProduccion(){
+  const a=asesorData();
+  document.getElementById('cp_nombre').textContent=a.nombre;
+  document.getElementById('cp_meta').textContent=`Asesor Inmobiliario · ${a.inmo} · ${a.tel}`;
+  logoSVG(a.inmo,document.getElementById('cp_logo'));
+  document.getElementById('cp_tel').textContent=a.tel;
+
+  const prop=document.getElementById('p_prop').value||'—';
+  document.getElementById('cp_prop').textContent=prop;
+  document.getElementById('cp_dir').textContent=document.getElementById('p_dir').value||'—';
+  const fecha=document.getElementById('p_fecha').value||'—';
+  const hora=document.getElementById('p_hora').value||'—';
+  document.getElementById('cp_fecha').textContent=fecha;
+  document.getElementById('cp_hora').textContent=hora;
+  const dur=document.getElementById('p_dur').value||'—';
+  document.getElementById('cp_dur').textContent=dur;
+
+  // Checklist
+  const cl=document.getElementById('cp_checklist');cl.innerHTML='';
+  CHECKLIST.forEach((item,i)=>{
+    if(document.getElementById('pc'+i)?.checked){
+      cl.innerHTML+=`<div class="check-card-row"><div class="check-num">${item.n}</div><div><div class="check-t">${item.t}</div><div class="check-s">${item.s}</div></div></div>`;
+    }
+  });
+
+  // Prod
+  const pg=document.getElementById('cp_prod');pg.innerHTML='';
+  PRODUCCION.forEach((item,i)=>{
+    if(document.getElementById('pp'+i)?.checked){
+      pg.innerHTML+=`<div class="prod-item"><div class="prod-num">${item.n}</div><div class="prod-t">${item.t}</div><div class="prod-s">${item.s}</div></div>`;
+    }
+  });
+
+  showCard('card-produccion');
+
+  const nombre0=prop.split(' ')[0];
+  const msg=`Hola ${nombre0} 🏡\n\nLlegó el momento que estábamos esperando — mañana damos a conocer a la estrella de este proceso: *su propiedad*.\n\n📅 *Fecha:* ${fecha}\n🕐 *Hora de llegada del equipo:* ${hora}\n⏱ *Duración estimada:* ${dur}\n\nLe comparto la confirmación con todo lo que necesitamos tener listo para que su propiedad luzca en su mejor versión.\n\nCualquier ajuste, con gusto lo atendemos con anticipación.\n\n— ${a.nombre}\n📲 ${a.tel}\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*`;
+  showWA('wa-produccion',msg);
+
+  document.getElementById('bp_print').style.display='block';
+  document.getElementById('bp_wa').style.display='block';
+}
+
+/* ── GEN REPORTE ── */
+let radioSel=-1;
+function selectRadio(i){
+  radioSel=i;
+  document.querySelectorAll('.radio-item').forEach((el,j)=>{
+    el.classList.toggle('on',j===i);
+  });
+}
+
+function genReporte(){
+  const a=asesorData();
+  document.getElementById('cr_nombre').textContent=a.nombre;
+  document.getElementById('cr_meta').textContent=`Asesor Inmobiliario · ${a.inmo} · ${a.tel}`;
+  logoSVG(a.inmo,document.getElementById('cr_logo'));
+  document.getElementById('cr_tel').textContent=a.tel;
+
+  const prop=document.getElementById('r_prop').value||'—';
+  const semana=document.getElementById('r_semana').value||'—';
+  document.getElementById('cr_prop').textContent=prop;
+  document.getElementById('cr_dir').textContent=document.getElementById('r_dir').value||'—';
+  document.getElementById('cr_semana').textContent=semana;
+
+  // Headline semana
+  document.getElementById('cr_semana_h').textContent='PERÍODO: '+semana.toUpperCase()+'.';
+
+  const ids=['alcance','repro','clics','leads','lcal','visitas','presupuesto','cpl'];
+  ids.forEach(k=>{
+    const v=document.getElementById('r_'+k).value||'—';
+    const prefix=(k==='presupuesto'||k==='cpl')&&v!=='—'?'$':'';
+    document.getElementById('cr_'+k).textContent=prefix+v;
+  });
+
+  document.getElementById('cr_comentarios').textContent=document.getElementById('r_comentarios').value||'Sin comentarios registrados.';
+  document.getElementById('cr_obs').textContent=document.getElementById('r_obs').value||'Sin observaciones.';
+
+  // Ajuste
+  const ag=document.getElementById('cr_ajuste');ag.innerHTML='';
+  AJUSTES.forEach((item,i)=>{
+    const sel=i===radioSel;
+    ag.innerHTML+=`<div class="ajuste-row">
+      <div class="ajuste-num">0${i+1}</div>
+      <div class="ajuste-dot ${sel?'on':''}"></div>
+      <div><div class="ajuste-t">${item.t}</div><div class="ajuste-s">${item.s}</div></div>
+    </div>`;
+  });
+
+  showCard('card-reporte');
+
+  const ajusteTexto=radioSel>=0?AJUSTES[radioSel].t:'Pendiente de definir';
+  const alcance=document.getElementById('r_alcance').value||'—';
+  const leads=document.getElementById('r_leads').value||'—';
+  const lcal=document.getElementById('r_lcal').value||'—';
+  const nombre0=prop.split(' ')[0];
+  const msg=`Hola ${nombre0},\n\nAquí está el reporte de resultados de su propiedad en publicidad.\n\n📊 *Resultados del período ${semana}:*\n• Alcance: ${alcance} personas\n• Leads recibidos: ${leads}\n• Leads calificados: ${lcal}\n\n📌 *Decisión estratégica para el siguiente período:*\n${ajusteTexto}\n\nCualquier pregunta sobre los datos, con gusto la revisamos.\n\n— ${a.nombre}\n📲 ${a.tel}\n*Método Neri · Transparencia total en cada etapa*`;
+  showWA('wa-reporte',msg);
+
+  document.getElementById('br_print').style.display='block';
+  document.getElementById('br_wa').style.display='block';
+}
+
+/* ── GEN NOTARÍA ── */
+function genNotaria(){
+  const a=asesorData();
+  document.getElementById('cn_nombre').textContent=a.nombre;
+  document.getElementById('cn_meta').textContent=`Asesor Inmobiliario · ${a.inmo} · ${a.tel}`;
+  logoSVG(a.inmo,document.getElementById('cn_logo'));
+  document.getElementById('cn_tel').textContent=a.tel;
+
+  const cliente=document.getElementById('n_cliente').value||'—';
+  const fecha=document.getElementById('n_fecha').value||'—';
+  const hora=document.getElementById('n_hora').value||'—';
+  document.getElementById('cn_cliente').textContent=cliente;
+  document.getElementById('cn_fecha').textContent=fecha;
+  document.getElementById('cn_hora').textContent=hora;
+  document.getElementById('cn_notaria').textContent=document.getElementById('n_notaria').value||'—';
+  document.getElementById('cn_notario').textContent=document.getElementById('n_notario').value||'—';
+  document.getElementById('cn_dir').textContent=document.getElementById('n_dir').value||'—';
+  document.getElementById('cn_ref').textContent=document.getElementById('n_ref').value||'—';
+
+  // Docs
+  const dl=document.getElementById('cn_docs');dl.innerHTML='';
+  DOCS.forEach((item,i)=>{
+    if(document.getElementById('nd'+i)?.checked){
+      dl.innerHTML+=`<div class="doc-row"><div class="doc-num">${item.n}</div><div><div class="doc-t">${item.t}</div><div class="doc-s">${item.s}</div></div></div>`;
+    }
+  });
+
+  showCard('card-notaria');
+
+  const nombre0=cliente.split(' ')[0];
+  const notaria=document.getElementById('n_notaria').value||'la notaría';
+  const dir=document.getElementById('n_dir').value||'';
+  const msg=`Hola ${nombre0},\n\nTodo está listo para su cita en notaría. Le confirmo los datos:\n\n📅 *Fecha:* ${fecha}\n🕐 *Hora:* ${hora}\n🏛 *Notaría:* ${notaria}\n📍 *Dirección:* ${dir}\n\nLe recomiendo llegar 10 minutos antes. En la tarjeta adjunta encontrará la lista completa de documentos que debe llevar.\n\nCualquier ajuste, con gusto lo coordino con anticipación.\n\n— ${a.nombre}\n📲 ${a.tel}\n*Método Neri · Sistema de Control de Calidad Inmobiliaria*`;
+  showWA('wa-notaria',msg);
+
+  document.getElementById('bn_print').style.display='block';
+  document.getElementById('bn_wa').style.display='block';
+}
+
+/* ── IMPRIMIR ── */
+const PRINT_CSS=`
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,400&family=Montserrat:wght@300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0A0A0A;display:flex;justify-content:center;padding:0;}
+:root{--black:#0A0A0A;--black-2:#111111;--black-3:#181818;--gold:#C6A86B;--gold-light:#E2C98A;--gold-dim:rgba(198,168,107,0.10);--gold-border:rgba(198,168,107,0.22);--gold-strong:rgba(198,168,107,0.45);--w100:rgba(255,255,255,1);--w60:rgba(255,255,255,0.60);--w35:rgba(255,255,255,0.35);--w18:rgba(255,255,255,0.18);--w8:rgba(255,255,255,0.08);--w4:rgba(255,255,255,0.04);}
+.card{width:700px;background:var(--black);border-top:1px solid var(--gold-border);border-bottom:1px solid var(--gold-border);font-family:'Montserrat',sans-serif;}
+.c-header{background:var(--black-2);border-bottom:1px solid var(--gold-border);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;}
+.c-asesor-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;color:var(--w100);}
+.c-asesor-meta{font-size:9px;color:var(--w35);margin-top:3px;}
+.c-logo{display:flex;align-items:center;justify-content:flex-end;}
+.c-hero{padding:28px 32px 24px;border-bottom:1px solid var(--w4);}
+.c-hero-tag{font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.c-hero-h{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:2px;color:var(--w100);line-height:1;}
+.c-hero-sub{font-family:'Cormorant Garamond','Georgia',serif;font-style:italic;font-size:14px;color:var(--w35);margin-top:6px;line-height:1.5;}
+.c-body{padding:0 32px;}
+.c-spacer{height:20px;}
+.sec-bar{display:flex;align-items:center;}
+.sec-bar-lbl{background:var(--gold);color:var(--black);font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;padding:6px 14px;flex-shrink:0;}
+.sec-bar-line{flex:1;height:1px;background:var(--gold-border);}
+.data-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--w8);border-top:none;}
+.data-cell{padding:12px 18px;border-right:1px solid var(--w4);border-bottom:1px solid var(--w4);}
+.data-cell:nth-child(even){border-right:none;}
+.data-cell.full{grid-column:1/-1;}
+.d-lbl{font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--w18);margin-bottom:3px;}
+.d-val{font-size:12px;font-weight:500;color:var(--w100);}
+.d-val.gold{color:var(--gold);font-size:13px;font-weight:600;}
+.d-val.big{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);letter-spacing:1px;line-height:1;}
+.check-card-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--w8);border-top:none;}
+.check-card-row{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--w4);border-right:1px solid var(--w4);}
+.check-card-row:nth-child(even){border-right:none;}
+.check-num{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--gold);flex-shrink:0;margin-top:1px;}
+.check-t{font-size:10px;font-weight:600;color:var(--w100);line-height:1.3;}
+.check-s{font-size:9px;font-weight:300;color:var(--w35);margin-top:1px;line-height:1.3;}
+.prod-grid{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid var(--w8);border-top:none;}
+.prod-item{padding:12px 16px;border-right:1px solid var(--w4);}
+.prod-item:last-child{border-right:none;}
+.prod-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);line-height:1;}
+.prod-t{font-size:10px;font-weight:600;color:var(--w100);margin-top:3px;line-height:1.3;}
+.prod-s{font-size:9px;font-weight:300;color:var(--w35);margin-top:1px;line-height:1.3;}
+.ajuste-grid{display:grid;grid-template-columns:1fr;border:1px solid var(--w8);border-top:none;}
+.ajuste-row{display:flex;align-items:flex-start;gap:12px;padding:12px 18px;border-bottom:1px solid var(--w4);}
+.ajuste-row:last-child{border-bottom:none;}
+.ajuste-num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);flex-shrink:0;}
+.ajuste-dot{width:14px;height:14px;border:1.5px solid rgba(198,168,107,0.22);border-radius:50%;flex-shrink:0;margin-top:2px;}
+.ajuste-dot.on{background:#C6A86B;border-color:#C6A86B;}
+.ajuste-t{font-size:11px;font-weight:600;color:var(--w100);line-height:1.3;}
+.ajuste-s{font-size:9px;font-weight:300;color:var(--w35);margin-top:2px;line-height:1.3;}
+.docs-list{border:1px solid var(--w8);border-top:none;}
+.doc-row{display:flex;align-items:flex-start;gap:14px;padding:11px 18px;border-bottom:1px solid var(--w4);}
+.doc-row:last-child{border-bottom:none;}
+.doc-num{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--gold);flex-shrink:0;margin-top:1px;}
+.doc-t{font-size:11px;font-weight:600;color:var(--w100);line-height:1.3;}
+.doc-s{font-size:9px;font-weight:300;color:var(--w35);margin-top:1px;}
+.analysis-block{border:1px solid var(--w8);border-top:none;}
+.analysis-cell{padding:14px 18px;border-bottom:1px solid var(--w4);}
+.analysis-cell:last-child{border-bottom:none;}
+.analysis-lbl{font-size:8px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--w18);margin-bottom:6px;}
+.analysis-txt{font-size:11px;font-weight:400;color:var(--w60);line-height:1.6;white-space:pre-wrap;}
+.c-footer{margin:20px 32px 0;border-top:1px solid var(--gold-border);padding:14px 0 22px;display:flex;align-items:center;justify-content:space-between;}
+.c-footer-msg{font-size:9px;font-style:italic;color:var(--w35);}
+.c-footer-tel{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:1px;}
+#hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#C6A86B;color:#0A0A0A;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:11px 22px;border-radius:3px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
+@media print{@page{margin:0;size:700px auto;}body{background:#0A0A0A!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}#hint{display:none!important;}}
+`;
+
+function imprimirTarjeta(id){
+  const card=document.getElementById(id);
+  if(!card||card.classList.contains('hidden'))return;
+  const win=window.open('','_blank','width=760,height:900,scrollbars=yes');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${PRINT_CSS}</style></head><body><div class="card">${card.innerHTML}</div><div id="hint" onclick="window.print()">● Guardar / Imprimir</div></body></html>`);
+  win.document.close();
+  win.onload=()=>setTimeout(()=>win.print(),1200);
+}
+
+/* ── COPIAR WA ── */
+function copiarWA(id){
+  const txt=document.getElementById(id+'-txt');
+  if(!txt||!txt.textContent)return;
+  navigator.clipboard.writeText(txt.textContent).then(()=>{
+    const btn=document.querySelector(`#${id} .wa-copy`);
+    if(!btn)return;
+    const orig=btn.textContent;
+    btn.textContent='✓ Copiado';
+    setTimeout(()=>btn.textContent=orig,2000);
+  });
+}
+</script>
+</body>
+</html>
